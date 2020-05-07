@@ -1,0 +1,10 @@
+Link Hasil :
+
+1. Line Chart
+https://visdatlinechart.000webhostapp.com/
+
+2. Stacked Bar
+https://visdatstackedbar.000webhostapp.com/
+
+3. Interactive Maps
+https://visdatinteractivemaps.000webhostapp.com/
