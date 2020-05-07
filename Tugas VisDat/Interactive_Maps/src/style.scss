@@ -1,0 +1,34 @@
+body{
+  text-align : center;
+  background-color : lightgray;
+ 
+  
+}
+
+h2{
+	color: #343434;
+	font-weight: normal;
+	font-family: 'Ultra', sans-serif;   
+	font-size: 30px;
+	line-height: 42px;
+	text-transform: uppercase;
+	text-shadow: 0 2px white, 0 3px #777;
+  
+}
+path {
+  stroke: red;          //Borders color
+  stroke-width: 0.5px;  //Borders width line 
+  fill: #93fa66;         //Countries color
+}
+
+#tooltip{
+  text-align : left;
+  padding : 16px;
+  background-color : #80ffe5;
+  border : 1px solid black;
+  width : auto;
+  opacity : 0;
+  color : black;
+  position : absolute;
+  
+}

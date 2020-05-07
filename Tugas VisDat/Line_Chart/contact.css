@@ -1,0 +1,145 @@
+p {
+	font-size:13pt;
+    padding: 0;
+    margin: 30px;
+	line-height:1.5;
+}
+hr{
+	margin-bottom:0px;
+}
+#header{
+    background-size: cover;
+    text-align: center;
+}
+#header p {
+    color: #3b464c;
+    padding-top: 5px;
+    margin: 0;
+    font-weight: bold;
+    text-align: center;
+}
+.section{
+    background-color: #BDBBBB;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+h1 span {
+    border: 4px dashed #969696;
+    padding: 10px;
+}
+body {
+    font-family:"Garamond";
+    font-size: 10pt;
+    background-color: #ffffff;
+    padding: 10px;
+    margin-top: 80px;
+	margin-left:300px;
+	margin-right:300px;
+}
+.text-align-center{
+	text-align:center;
+}
+.text-align-center span{
+	line-height:2;
+}
+#quote{
+	font-style:italic;
+}
+#daftar-isi{
+    text-align:center;
+    line-height:4.5;
+}
+#daftar-isi a{
+	font-size:9pt;
+	color:gray;
+	margin-right:30px;
+	margin-left:30px;
+	text-decoration:none;
+}
+
+#daftar-isi a:hover {
+    opacity:0.5;	
+}
+form {
+    text-align: center;
+    margin-top: 30px;
+	line-height:1.8;
+}
+textarea {
+    height: 100px;
+}
+input, textarea {
+    margin-bottom: 10px;
+    font-size: 11pt;
+    padding: 15px 10px 10px;
+    border: 1px solid #cecece;
+    background-color: #efefef;
+    color: #787575;
+    border-radius: 5px;
+    width: 70%;
+    outline: none;
+}
+.submit {
+    background-color: white;
+    padding: 12px 45px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: black;
+    border: 1px solid black;
+    outline: none;
+    margin: 0;
+    font-weight: bold;
+	transition-duration: 0.4s;
+}
+.submit:hover {
+    background-color: #555555;
+	color:white;
+	box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+#contact{
+    text-align:center;
+}
+#contact img{
+	margin-top:80px;
+	margin-bottom:10px;
+	margin-right:2px;
+	margin-left:2px;
+}
+#contact img:hover{
+    opacity:0.5;
+}
+
+.dropbtn {
+    font-family:"Garamond";
+    font-size: 9pt;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 400px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdown-content a:hover {background-color: #f1f1f1}
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }

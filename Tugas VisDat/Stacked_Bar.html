@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<p>
+    Silahkan pilih nilai yang ingin Anda lihat :) :
+    <select id="select_button"></select>
+</p>
+<p>
+    <b1 style="font-weight:'bold';font-size:30px"></b1>
+</p>
+<div id="viz_area"></div>
+
+<style>
+    body {
+        font-family: sans-serif;
+    }
+    
+    text {
+        white-space: pre;
+    }
+    
+    .grid line {
+        stroke: lightgrey;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+    }
+    
+    .grid path {
+        stroke-width: 0;
+    }
+</style>
+<script>
+    var allVar = ["ekspor", "impor"]
+    var initialVar = allVar[0];
+    d3.select("b1").text("Nilai " + initialVar + " Indonesia Menurut Golongan SITC")
+    var margin = {
+        left: 70,
+        top: 30,
+        right: 550,
+        bottom: 40
+    }
+    var w = 1100 - margin.left - margin.right
+    var h = 500 - margin.top - margin.bottom
+    var svG = d3.select("#viz_area")
+        .append("svg")
+        .attr("width", w + margin.left + margin.right)
+        .attr("height", h + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+    d3.select("#select_button")
+        .selectAll('myOptions')
+        .data(allVar)
+        .enter()
+        .append('option')
+        .text(function(d) {
+            return "Nilai " + d;
+        })
+        .attr("value", function(d) {
+            return d;
+        })
+
+    var x = d3.scaleBand()
+        .range([0, w])
+        .padding(0.2)
+
+    var xAxis = svG.append("g")
+        .attr("transform", "translate(0," + h + ")")
+        .call(d3.axisBottom(x).tickSizeOuter(0))
+
+    var xlab = svG.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", w / 2)
+        .attr("y", h + 40)
+
+    var y = d3.scaleLinear()
+        .range([h, 0])
+
+    var yAxis = svG.append("g")
+        .attr("class", "grid")
+        .call(d3.axisLeft(y).tickSize(-w, 0, 0)
+            .tickFormat(function(d) {
+                return d
+            }))
+
+    var ylab = svG.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("y", -50)
+        .attr("x", -155)
+        .attr("transform", "rotate(-90)")
+
+    var myColor = d3.scaleOrdinal()
+        .range(d3.schemePaired)
+
+    var stack = d3.stack()
+        .order(d3.stackOrderNone)
+        .offset(d3.stackOffsetNone);
+
+    var formatNumber = function(number) {
+        return number.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    }
+    var category = svG.append("g").append("text")
+        .text("Golongan SITC :")
+        .attr("x", w + 5)
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold")
+        .style("text-anchor", "start")
+
+    //FUNGSI    
+    function redraw(file) {
+        d3.csv("https://raw.githubusercontent.com/dwinissaa/tes/master/" + file + ".csv", function(data) {
+            subgroups = data.columns.slice(1)
+            groups = d3.map(data, function(d) {
+                return d[data.columns.slice(0)[0]]
+            }).keys()
+            x.domain(groups)
+            stack.keys(subgroups)
+            myColor.domain(subgroups)
+
+
+            function maxY(dat) {
+                var sum = []
+                for (var i = 0; i < groups.length; i++) {
+                    var row = []
+                    d3.map(dat[i], function(d) {
+                        return d
+                    }).values().forEach(function(d) {
+                        row.push(+d)
+                    })
+                    sum.push(d3.sum(row))
+                }
+                return d3.max(sum) * 1.2
+            }
+
+            xlab.text("Tahun");
+            ylab.text("Nilai " + file + " (US$)");
+            y.domain([0, maxY(data)]);
+            xAxis.transition().duration(1000).call(d3.axisBottom(x))
+            yAxis.transition().duration(1000).call(d3.axisLeft(y).tickSize(-w, 0, 0))
+            subgroups.forEach(function(key, key_index) {
+
+                var bar = svG.selectAll(".bar-" + key)
+                    .data(stack(data)[key_index], function(d) {
+                        return d.data[data.columns.slice(0)[0]] + "-" + key;
+                    });
+
+                bar
+                    .transition()
+                    .attr("x", function(d) {
+                        return x(d.data[data.columns.slice(0)[0]]);
+                    })
+                    .attr("y", function(d) {
+                        return y(d[1]);
+                    })
+                    .attr("height", function(d) {
+                        return y(d[0]) - y(d[1]);
+                    });
+
+                bar.enter().append("rect")
+                    .attr("class", function(d) {
+                        return "bar bar-" + key;
+                    })
+                    .attr("x", function(d) {
+                        return x(d.data[data.columns.slice(0)[0]]);
+                    })
+                    .attr("y", function(d) {
+                        return y(d[1]);
+                    })
+                    .attr("height", function(d) {
+                        return y(d[0]) - y(d[1]);
+                    })
+                    .attr("width", x.bandwidth())
+                    .attr("fill", function(d, i) {
+                        return myColor(key);
+                    })
+                    .on("mouseover", function(d) {
+                        tooltip.style("display", null)
+                        var subgroupName = d3.select(this)._groups[0][0].attributes.class.textContent.split("-").pop()
+                        var subgroupValue = d.data[subgroupName];
+                        var subgroupYear = d.data[data.columns.slice(0)[0]]
+                        tooltip.select("text").text("Golongan: " + subgroupName + "\n" +
+                            "Nilai: " + formatNumber(subgroupValue) + " Juta US$\n" +
+                            "Tahun: " + subgroupYear)
+                        d3.selectAll(".bar ").style("opacity", 0.2)
+                        d3.select(this).style("opacity", 1)
+                    })
+                    .on("mouseout", function() {
+                        tooltip.style("display", "none");
+                        d3.selectAll(".bar ").style("opacity", 1)
+                    })
+                    .on("mousemove", function(d) {
+                        var xPosition = d3.mouse(this)[0] - 15;
+                        var yPosition = d3.mouse(this)[1] - 25;
+                        tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")")
+                    });
+
+            });
+
+            // Draw legend
+            category
+                .attr("class", "category")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + -9 + ")";
+                })
+
+
+            var legend = svG.selectAll(".legend")
+                .data(subgroups)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + (i) * 19 + ")";
+                });
+
+            legend.append("rect")
+                .attr("x", w - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", function(d, i) {
+                    return myColor(d)
+                });
+
+
+            legend.append("text")
+                .attr("x", w + 5)
+                .attr("y", 9)
+                .attr("font-size", "12px")
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d, i) {
+                    switch (i) {
+                        case 0:
+                            return "A: Bahan makanan dan binatang hidup";
+                        case 1:
+                            return "B: Minuman dan tembakau";
+                        case 2:
+                            return "C: Bahan-bahan mentah, tidak untuk dimakan";
+                        case 3:
+                            return "D: Bahan bakar pelikan, bahan penyemir dan bahan-bahan yang berkenaan dengan itu";
+                        case 4:
+                            return "E: Lemak serta minyak hewan dan nabati";
+                        case 5:
+                            return "F: Bahan-bahan kimia";
+                        case 6:
+                            return "G: Barang-barang buatan pabrik dirinci menurut bahan";
+                        case 7:
+                            return "H: Mesin dan alat pengangkutan";
+                        case 8:
+                            return "I: Berbagai jenis barang buatan pabrik";
+                        case 9:
+                            return "J: Barang-barang transaksi tidak dirinci";
+
+                    }
+                });
+
+            var tooltip = svG.append("g")
+                .attr("class", "tooltip")
+                .style("display", "none");
+
+            var tool_w = 120
+            var tool_h = 20
+
+            tooltip.append("rect")
+                .attr("width", tool_w)
+                .attr("height", tool_h)
+                .attr("fill", "white")
+                .style("opacity", 0.5);
+
+            tooltip.append("text")
+                .attr("x", tool_w / 2)
+                .attr("dy", "1.2em")
+                .style("text-anchor", "middle")
+                .attr("font-size", "9px")
+                .attr("font-weight", "bold");
+
+        })
+    }
+    redraw(initialVar)
+
+    d3.select("#select_button").on("change", function(d) {
+        var selectedData = d3.select(this).property("value")
+        d3.select("b1").text("Nilai " + selectedData + " Indonesia Menurut Golongan SITC")
+        redraw(selectedData)
+    })
+</script>
